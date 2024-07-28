@@ -19,6 +19,17 @@
         let pc = null;
         let socket = null;
 
+        function playWhenBufferIsFull() {
+            if (remoteAudio.readyState >= 2) { // `HAVE_CURRENT_DATA` (2) o mayor indica que hay datos disponibles
+                remoteAudio.play().catch(error => {
+                    console.error('Error al iniciar la reproducción de audio:', error);
+                });
+            } else {
+                // Si no hay suficientes datos, verifica nuevamente después de un breve retraso
+                setTimeout(playWhenBufferIsFull, 100);
+            }
+        }
+
         startButton.addEventListener('click', startConnection);
 
         function startConnection() {
@@ -60,7 +71,7 @@
                 console.log("On track");
                 console.log(event.track);
                 remoteAudio.srcObject = event.streams[0];
-                remoteAudio.play(); // Reproduce inmediatamente para reducir la latencia
+                playWhenBufferIsFull();
             };
 
             pc.onicecandidate = (event) => {
