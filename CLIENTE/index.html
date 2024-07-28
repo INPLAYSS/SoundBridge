@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebRTC Mobile Client</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/8.0.1/adapter.min.js"></script>
+</head>
+<body>
+    <h1>WebRTC Mobile Client</h1>
+    <button id="startButton">Start Connection</button>
+    <audio id="remoteAudio" controls></audio>
+    <script>
+        const startButton = document.getElementById('startButton');
+        const remoteAudio = document.getElementById('remoteAudio');
+        let pc = null;
+        let socket = null;
+
+        startButton.addEventListener('click', startConnection);
+
+        function startConnection() {
+            socket = io('http://localhost:3000', { transports: ['websocket'] });
+
+            socket.on('connect', () => {
+                alert('Conectado al servidor de señalización');
+                socket.emit('phone-connected', socket.id); // Emitir evento de conexión con el ID del socket
+            });
+
+            socket.on('disconnect', () => {
+                alert('Desconectado del servidor de señalización');
+                // No es necesario emitir 'phone-disconnected' aquí porque el servidor ya detecta la desconexión.
+            });
+
+            socket.on('expel', () => {
+                alert('Has sido expulsado de la conexión.');
+                socket.disconnect();
+            });
+
+            socket.on('message', (message) => {
+                handleSignalingMessage(message);
+            });
+
+            pc = new RTCPeerConnection({
+                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+            });
+
+            pc.ontrack = (event) => {
+                const remoteAudio = document.getElementById('remoteAudio');
+                remoteAudio.srcObject = event.streams[0];
+            };
+
+
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit('message', { type: 'ice-candidate', candidate: event.candidate });
+                }
+            };
+
+            pc.ontrack = (event) => {
+                remoteAudio.srcObject = event.streams[0];
+            };
+
+            pc.ondatachannel = (event) => {
+                const dataChannel = event.channel;
+                dataChannel.onmessage = (event) => {
+                    alert('Mensaje en data channel recibido: ' + event.data);
+                };
+            };
+        }
+
+        function handleSignalingMessage(message) {
+            const { type, data } = message;
+
+            if (type === 'offer') {
+                pc.setRemoteDescription(new RTCSessionDescription(data))
+                    .then(() => pc.createAnswer())
+                    .then((answer) => pc.setLocalDescription(answer))
+                    .then(() => socket.emit('message', { type: 'answer', data: pc.localDescription }))
+                    .catch((error) => alert('Error handling offer: ' + error));
+            } else if (type === 'answer') {
+                pc.setRemoteDescription(new RTCSessionDescription(data))
+                    .catch((error) => alert('Error handling answer: ' + error));
+            } else if (type === 'ice-candidate') {
+                pc.addIceCandidate(new RTCIceCandidate(data))
+                    .catch((error) => alert('Error adding ICE candidate: ' + error));
+            }
+        }
+    </script>
+</body>
+</html>
