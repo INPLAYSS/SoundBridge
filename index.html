@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>SoundBridge</title>
+    <link href="styles.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body>
+    <div class="app">
+      <div class="left-container">
+        <div class="info-container">
+          <div class="info-text">
+            <p class="code" id="hostname">Cargando ...</p>
+            <p class="ip">IP:<span id="ip-address">Cargando ...</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="right-container">
+        <div class="power-controller">
+          <img class="power" src="img/apagado.png" />
+        </div>
+        <div class="phone-container">
+          <img id="movil" src="img/movil.png" />
+          <div class="phone-info-container">
+            <p class="code" id="phone-code">Cargando ...</p>
+            <p class="ip">IP:<span id="phone-ip">Cargando ...</span></p>
+          </div>
+
+          <button id="expelButton">Expulsar</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="main.js"></script>
+    <script src="client.js">
+    </script>
+  </body>
+</html>

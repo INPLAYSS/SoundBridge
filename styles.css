@@ -1,0 +1,141 @@
+html,
+body {
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+body {
+  background-color: rgba(24, 23, 28, 0.9);
+  color: white;
+}
+
+.left-container {
+  position: absolute;
+}
+
+.right-container {
+  position: absolute;
+  margin-left: 400px;
+}
+
+.info-container {
+  border: 1px solid rgba(240, 240, 240, 0.5);
+  border-radius: 5px;
+  width: auto;
+}
+
+.ip {
+  text-align: center;
+}
+
+.info-text {
+  padding: 2px 50px 20px 50px;
+}
+
+.app {
+  padding: 50px;
+  position: relative;
+}
+
+.power-controller {
+  padding: 5px;
+}
+
+
+#movil {
+  height: auto;
+  width: 100%;
+  display: block;
+}
+
+.phone-info-container {
+  color: black;
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.phone-container {
+  position: relative;
+  width: 600px;
+  display: none;
+}
+
+.power-controller img {
+  width: 300px;
+  margin-left: 50%;
+  margin-top: 30%;
+  cursor: pointer;
+  display: inline-block;
+  border: none;
+  outline: none;
+  transition: transform 0.2s, filter 0.2s;
+}
+
+.power-controller img:hover {
+  filter: brightness(5);
+  /* Brillo al pasar el ratón */
+  transform: scale(1.05);
+  /* Efecto de agrandamiento al pasar el ratón */
+}
+
+.power-controller img:active {
+  transform: scale(0.95);
+  /* Efecto de compresión al hacer clic */
+}
+
+.code {
+  border-radius: 5px;
+  padding: 0rem 0.75rem 0rem 0.75rem;
+  font-size: 1.1rem;
+  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+    Bitstream Vera Sans Mono, Courier New, monospace;
+}
+
+
+button {
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  appearance: button;
+  backface-visibility: hidden;
+  background-color: #405cf5;
+  border-radius: 6px;
+  border-width: 0;
+  box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset, rgba(50, 50, 93, .1) 0 2px 5px 0, rgba(0, 0, 0, .07) 0 1px 1px 0;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  font-family: -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Ubuntu, sans-serif;
+  font-size: 100%;
+  height: 44px;
+  line-height: 1.15;
+  margin: 12px 0 0;
+  outline: none;
+  overflow: hidden;
+  padding: 0 25px;
+  text-align: center;
+  text-transform: none;
+  transition: all .2s, box-shadow .08s ease-in;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: auto;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+button:focus {
+  box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset, rgba(50, 50, 93, .2) 0 6px 15px 0, rgba(0, 0, 0, .1) 0 2px 2px 0, rgba(50, 151, 211, .3) 0 0 0 4px;
+}
+
+button:hover {
+  background-color: #E01E79;
+  border: 2px solid white;
+  font-weight: 500;
+}
