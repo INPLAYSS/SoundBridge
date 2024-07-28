@@ -34,16 +34,18 @@
 
         function startConnection() {
             socket = io('http://192.168.50.112:3000', { 
-            transports: ['websocket'],
-            upgrade: false,
-            reconnection: true,
-            reconnectionAttempts: Infinity,
-            reconnectionDelay: 500
-        });
+                transports: ['websocket'],
+                upgrade: false,
+                reconnection: true,
+                reconnectionAttempts: Infinity,
+                reconnectionDelay: 500
+            });
 
             socket.on('connect', () => {
                 console.log('Conectado al servidor de señalización');
-                socket.emit('phone-connected', socket.id); // Emitir evento de conexión con el ID del socket
+                getLocalIP(ip => {
+                    socket.emit('phone-connected', { socketId: socket.id, ipAddress: ip });
+                });
             });
 
             socket.on('disconnect', () => {
@@ -81,7 +83,7 @@
                         data: event.candidate
                     });
                 }
-            };  
+            };
 
             pc.ondatachannel = (event) => {
                 const dataChannel = event.channel;
@@ -113,6 +115,21 @@
                     }
                 }
             }
+        }
+
+        function getLocalIP(callback) {
+            const RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+            const rtc = new RTCPeerConnection({ iceServers: [] });
+            rtc.createDataChannel('');
+            rtc.onicecandidate = (evt) => {
+                if (evt.candidate) {
+                    const ipMatch = evt.candidate.candidate.match(/([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/);
+                    if (ipMatch) {
+                        callback(ipMatch[1]);
+                    }
+                }
+            };
+            rtc.createOffer().then(offer => rtc.setLocalDescription(offer)).catch(err => console.error(err));
         }
     </script>
 </body>
