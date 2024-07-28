@@ -18,15 +18,15 @@
         startButton.addEventListener('click', startConnection);
 
         function startConnection() {
-            socket = io('http://localhost:3000', { transports: ['websocket'] });
+            socket = io('http://192.168.50.112:3000', { transports: ['websocket'] });
 
             socket.on('connect', () => {
-                alert('Conectado al servidor de señalización');
+                console.log('Conectado al servidor de señalización');
                 socket.emit('phone-connected', socket.id); // Emitir evento de conexión con el ID del socket
             });
 
             socket.on('disconnect', () => {
-                alert('Desconectado del servidor de señalización');
+                console.log('Desconectado del servidor de señalización');
                 // No es necesario emitir 'phone-disconnected' aquí porque el servidor ya detecta la desconexión.
             });
 
@@ -44,25 +44,22 @@
             });
 
             pc.ontrack = (event) => {
-                const remoteAudio = document.getElementById('remoteAudio');
                 remoteAudio.srcObject = event.streams[0];
             };
-
 
             pc.onicecandidate = (event) => {
-                if (event.candidate) {
-                    socket.emit('message', { type: 'ice-candidate', candidate: event.candidate });
+                if (event.candidate && pc.signalingState === 'stable') {
+                    socket.emit('message', { 
+                        type: 'ice-candidate', 
+                        data: event.candidate
+                    });
                 }
-            };
-
-            pc.ontrack = (event) => {
-                remoteAudio.srcObject = event.streams[0];
-            };
+            };  
 
             pc.ondatachannel = (event) => {
                 const dataChannel = event.channel;
                 dataChannel.onmessage = (event) => {
-                    alert('Mensaje en data channel recibido: ' + event.data);
+                    console.log('Mensaje en data channel recibido: ' + event.data);
                 };
             };
         }
@@ -70,18 +67,24 @@
         function handleSignalingMessage(message) {
             const { type, data } = message;
 
-            if (type === 'offer') {
+            if (type === 'offer' && pc.signalingState === 'stable') {
                 pc.setRemoteDescription(new RTCSessionDescription(data))
                     .then(() => pc.createAnswer())
                     .then((answer) => pc.setLocalDescription(answer))
                     .then(() => socket.emit('message', { type: 'answer', data: pc.localDescription }))
-                    .catch((error) => alert('Error handling offer: ' + error));
-            } else if (type === 'answer') {
+                    .catch((error) => console.error('Error handling offer:', error));
+            } else if (type === 'answer' && pc.signalingState === 'have-local-offer') {
                 pc.setRemoteDescription(new RTCSessionDescription(data))
-                    .catch((error) => alert('Error handling answer: ' + error));
+                    .catch((error) => console.error('Error handling answer:', error));
             } else if (type === 'ice-candidate') {
-                pc.addIceCandidate(new RTCIceCandidate(data))
-                    .catch((error) => alert('Error adding ICE candidate: ' + error));
+                if (data.candidate) {
+                    try {
+                        const candidate = new RTCIceCandidate(data);
+                        pc.addIceCandidate(candidate).catch(e => console.error("Error adding ICE Candidate:", e));
+                    } catch (e) {
+                        console.error("Error creating ICE Candidate:", e);
+                    }
+                }
             }
         }
     </script>
